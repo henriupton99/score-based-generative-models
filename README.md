@@ -6,3 +6,7 @@ Deep Learning Course (Project Page) : https://marcocuturi.net/dl.html
 Blog post about the Process : https://yang-song.github.io/blog/2021/score/
 
 We work on MAESTRO music data that comes from TensorFlow : https://magenta.tensorflow.org/datasets/maestro#v300
+
+Example of piano roll for one random MIDI File : 
+
+![Example Image](./figures/piano_roll_760.png)
