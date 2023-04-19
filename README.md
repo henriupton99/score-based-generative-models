@@ -3,7 +3,12 @@ In this work, you will study a recent, related, yet different approach to be abl
 
 Deep Learning Course (Project Page) : https://marcocuturi.net/dl.html
 
-Blog post about the Process : https://yang-song.github.io/blog/2021/score/
+Blog post and GitHub about the Process : 
+
+https://yang-song.github.io/blog/2021/score/
+
+https://github.com/yang-song/score_sde_pytorch
+
 
 We work on MAESTRO music data that comes from TensorFlow : https://magenta.tensorflow.org/datasets/maestro#v300
 
