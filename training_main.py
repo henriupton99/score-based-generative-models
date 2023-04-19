@@ -3,6 +3,8 @@
 import sys
 sys.path.append("./code")
 
+from data_builder import MaestroDataset
+
 import torch
 from functools import partial
 from torch.optim import Adam
@@ -29,14 +31,15 @@ batch_size =  32 #@param {'type':'integer'}
 ## learning rate
 lr=1e-4 #@param {'type':'number'}
 
-dataset = MNIST('.', train=True, transform=transforms.ToTensor(), download=True)
+dataset = MaestroDataset(datatype = "train")
 data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
 optimizer = Adam(score_model.parameters(), lr=lr)
 for epoch in range(n_epochs):
   avg_loss = 0.
   num_items = 0
-  for x, y in data_loader: 
+  for x in data_loader: 
+    x = x.to(device)
     loss = loss_fn(score_model, x, marginal_prob_std_fn)
     optimizer.zero_grad()
     loss.backward()    

@@ -14,6 +14,9 @@ class MaestroDataset(Dataset):
     
     def __getitem__(self, index):
         midi_data = self.processer.read_midi_file(index)
+        midi_data = midi_data[:28, :28]
+        midi_data = torch.tensor(midi_data, dtype = torch.float)
+        midi_data = torch.unsqueeze(midi_data, 0)
         return midi_data
         
 
