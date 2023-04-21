@@ -1,5 +1,6 @@
 #@title Define the Euler-Maruyama sampler (double click to expand or collapse)
-
+import torch
+from tqdm import tqdm
 ## The number of sampling steps.
 num_steps =  500#@param {'type':'integer'}
 def Euler_Maruyama_sampler(score_model, 
@@ -32,7 +33,7 @@ def Euler_Maruyama_sampler(score_model,
   step_size = time_steps[0] - time_steps[1]
   x = init_x
   with torch.no_grad():
-    for time_step in tqdm.notebook.tqdm(time_steps):      
+    for time_step in tqdm(time_steps):      
       batch_time_step = torch.ones(batch_size, device=device) * time_step
       g = diffusion_coeff(batch_time_step)
       mean_x = x + (g**2)[:, None, None, None] * score_model(x, batch_time_step) * step_size
