@@ -1,18 +1,14 @@
 import sys
 sys.path.append("./code")
-from utils import process_maestro_data
-#processer = process_maestro_data(data_file = "maestro-v3.0.0.zip", start_pitch=56, fs = 1)
-#res = processer.get_midi_metadata()
-#print(res.shape)
+from utils import process_generated_samples
+from config import config
 
-#processer.plot_piano_roll(savefig=True)
+processer = process_generated_samples(
+    data_file = "generated_samples.pkl",
+    start_pitch=config.start_pitch,
+    fs = config.fs)
 
-from data_builder import MaestroDataset
+processer.plot_piano_roll(savefig=True)
 
-dataset_train = MaestroDataset(
-    datatype = "train",
-    start_pitch=56,
-    fs = 1)
 
-print(dataset.__getitem__(0))
 

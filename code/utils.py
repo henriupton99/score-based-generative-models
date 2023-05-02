@@ -60,11 +60,63 @@ class process_maestro_data:
         random_index = np.random.choice([k for k in range(len(self.csv_data))], size = 1)[0]
         pm = self.read_midi_file(random_index)
         plt.figure(figsize=(8, 4))
-        pm = self.read_midi_file(random_index)
         librosa.display.specshow(pm,
                                 hop_length=1, sr=self.fs, x_axis='time', y_axis='cqt_note',
                                 fmin=pretty_midi.note_number_to_hz(self.start_pitch))
         plt.title("Piano Roll for " + self.csv_data.canonical_title.loc[random_index] + " (" + self.csv_data.canonical_composer.loc[random_index] + ")")
         if savefig is not False:
-            plt.savefig("./figures/piano_roll_" + str(random_index) + ".png",
+            plt.savefig("./figures/piano_roll_original/piano_roll_" + str(random_index) + ".png",
+                        bbox_inches = "tight")
+        
+class process_generated_samples:
+    
+    def __init__(self, data_file, start_pitch, fs):
+        
+        self.data_file = data_file
+        self.start_pitch = start_pitch
+        self.fs = fs
+        self.samples_data = pd.read_pickle("./data/"+self.data_file)
+        
+    def piano_roll_to_midi(self, index):
+        
+        sample = self.samples_data.iloc[index]
+        # Create a PrettyMIDI object
+        midi_data = pretty_midi.PrettyMIDI()
+
+        # Create an instrument object
+        piano_program = pretty_midi.instrument_name_to_program('Acoustic Grand Piano')
+        instrument = pretty_midi.Instrument(program=piano_program)
+
+        # Add notes to the instrument object based on the piano roll matrix
+        for pitch, pitch_activation in enumerate(sample):
+            pitches = np.where(pitch_activation > 0)[0]
+            for note_start in np.split(pitches, np.where(np.diff(pitches) != 1)[0]+1):
+                if len(note_start):
+                    note_end = note_start[-1] + 1
+                    note_start = note_start[0]
+                    note = pretty_midi.Note(
+                        velocity=100, pitch=pitch, start=note_start/self.fs, end=note_end/self.fs)
+                    instrument.notes.append(note)
+
+        # Add the instrument to the MIDI data
+        midi_data.instruments.append(instrument)
+
+        # Save the MIDI data to a file
+        midi_data.write('./data/samples_midi/midi_data_sample_'+str(index) +'.mid')
+        
+        return midi_data
+    
+    def plot_piano_roll(
+        self,
+        savefig=False
+    ):
+        random_index = np.random.choice([k for k in range(len(self.samples_data))], size = 1)[0]
+        pm = self.samples_data.iloc[random_index].piano_roll
+        pm = np.array(pm)
+        plt.figure(figsize=(8, 4))
+        librosa.display.specshow(pm,
+                                hop_length=1, sr=self.fs, x_axis='time', y_axis='cqt_note',
+                                fmin=pretty_midi.note_number_to_hz(self.start_pitch))
+        if savefig is not False:
+            plt.savefig("./figures/piano_roll_generated/piano_roll_" + str(random_index) + ".png",
                         bbox_inches = "tight")

@@ -12,7 +12,7 @@ class MaestroDataset(Dataset):
         
         self.processer = process_maestro_data(
             data_file="maestro-v3.0.0.zip",
-            datatype = "train",
+            datatype = self.datatype,
             start_pitch=self.start_pitch,
             fs=self.fs
             )
