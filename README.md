@@ -69,7 +69,7 @@ The scripts [model.py](model.py), [sampler.py](sampler.py), [sde.py](sde.py) com
 
 ```python
 from model import ScoreNet, loss_fn
-from sampler import Euler_Maruyama_sampler
+from sampler import Euler_Maruyama_sampler, pc_sampler, ode_sampler
 from sde import marginal_prob_std, diffusion_coeff
 ```
 
@@ -89,11 +89,13 @@ This Dataset comes from TensorFlow website : https://magenta.tensorflow.org/data
 
 ## 3.1. Piano Roll Matrix
 
-We work with piano roll matrix : 
+A music can be perceived as a set of played notes which are characterized for each of them by a start date and an end date (we omit the velocity for this work). Thus, it is possible to extract from a piece (and its metadata in .midi format) its piano roll matrix: by splitting the duration of the piece into regular time intervals (according to a frequency $f_s$), each music can be represented by a sparse matrix S of shape $(duration\_track \times f_s , num\_pitches)$ defined as follows : for all $j \in (1, \dots, num\_pitches)$, $S_{t,j} = 1$ if note of pitch $j$ is played in time interval $[t, t+1]$, and $0$ otherwise. Here is an example of piano roll matrix :
 
 ![Example Image](./figures/piano_roll_original/piano_roll_579.png)
 
 # 4. Running Scripts
+
+In order to run main scripts, please install all required packages in you virtual environment and run the three scripts in the following order : 
 
 | Script Name | Output |
 |--------------|------------|
@@ -104,23 +106,122 @@ We work with piano roll matrix :
 
 # 5. Technical Results
 
-Example of piano roll matrix from a generated sample :
+Here is a piano roll matrix for a sample generated from Euler Maruyama sampler :
 
-![Example Image](./figures/piano_roll_generated/piano_roll_3.png)
+![Example Image](./figures/piano_roll_generated/Euler_Maruyama_sampler/piano_roll_3.png)
 
-Soundcloud link : 
+You can find below Soundcloud links (.mp3) for generated samples from the three available sampling methods :
 
-https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1500676579&color=%23ff9900&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true
+| Sampler Type                | Link                         |
+|-----------------------------|------------------------------|
+| Prediction-Correction Sampler | https://on.soundcloud.com/m6Zau |
+| ODE Sampler                  | https://on.soundcloud.com/UrBWF |
+| Euler Maruyama Sampler       | https://on.soundcloud.com/4ZQyd |
+
 
 # 6. Ressources
 
 ## 6.1. GitHubs / Links
 
-[Deep Learning Course (Project Page)](https://marcocuturi.net/dl.html)
+[Deep Learning Course ENSAE 2023 (Project Page)](https://marcocuturi.net/dl.html)
 
 [GitHub from Yang Song about SBGM (Pytorch Version)](https://github.com/yang-song/score_sde_pytorch) 
 
 [Blog post about the Score Based Generative Model](https://yang-song.github.io/blog/2021/score/)
 
 ## 6.2. Research Papers
-- [@sbgm] Yang Song, Jascha Sohl-Dickstein, Diederik P Kingma, Abhishek Kumar, Stefano Ermon, Ben Poole. (2018). **Score-Based Generative Modeling through Stochastic Differential Equations.** https://openreview.net/forum?id=PxTIG12RRHS
+
+@article{gan,
+  author={Creswell, Antonia and White, Tom and Dumoulin, Vincent and Arulkumaran, Kai and Sengupta, Biswa and Bharath, Anil A.},
+  journal={IEEE Signal Processing Magazine}, 
+  title={Generative Adversarial Networks: An Overview},
+  url={https://arxiv.org/abs/1710.07035}
+  year={2018}}
+
+@article{vae,
+  author={Estiri, Amir Hossein and Sabramooz, Mohammad Reza and Banaei, Ali and Dehghan, Amir Hossein and Jamialahmadi, Benyamin and Siavoshani, Mahdi Jafari},
+  booktitle={2020 10th International Symposium onTelecommunications (IST)}, 
+  title={A Variational Auto-Encoder Approach for Image Transmission in Noisy Channel}, 
+  url={https://arxiv.org/abs/2010.03967}
+  year={2020}}
+
+@article{sbgm,
+  title={Score-Based Generative Modeling through Stochastic Differential Equations.},
+  year={2020},
+  author = {Yang Song, Jascha Sohl-Dickstein, Diederik P Kingma, Abhishek Kumar, Stefano Ermon, Ben Poole},
+  url={https://openreview.net/forum?id=PxTIG12RRHS}
+}
+
+@article{energy-based-model,
+  author={Yilun Du, Igor Mordatch},
+  journal={arXiv:1903.08689}, 
+  title={Implicit Generation and Generalization in Energy-Based Models}, 
+  year={2018},
+  url={https://arxiv.org/abs/1903.08689}
+  }
+
+@article{blog-post,
+  title={Score-Based Generative Modeling through Stochastic Differential Equations (Blog Post).},
+  year={2019},
+  author = {Yang Song},
+  url={https://yang-song.net/blog/2021/score/}
+}
+
+@article{langevin-dynamic,
+  title={Generative Modeling by Estimating Gradients of the Data Distribution.},
+  year={2019},
+  author = {Yang Song, Stefano Ermon},
+  url={https://arxiv.org/abs/1907.05600}
+}
+
+@article{u-net,
+  title={U-Net: Convolutional Networks for Biomedical Image Segmentation.},
+  year={2015},
+  author = {Olaf Ronneberger, Philipp Fischer, Thomas Brox},
+  url={https://arxiv.org/abs/1505.04597}
+}
+
+@article{jukebox,
+  title={Jukebox: A Generative Model for Music.},
+  year={2020},
+  author = {Prafulla Dhariwal, Heewoo Jun, Christine Payne, Jong Wook Kim, Alec Radford, Ilya Sutskever},
+  url={https://arxiv.org/abs/2005.00341}
+}
+
+@article{maestro-dataset,
+  title={MAESTRO Dataset v3 from TensorFlow Magenta.},
+  year={2022},
+  author = {TensorFlow},
+  url={https://magenta.tensorflow.org/datasets/maestro}
+}
+
+@article{
+  maestro-article,
+  title={Enabling Factorized Piano Music Modeling and Generation with the {MAESTRO} Dataset},
+  author={Curtis Hawthorne and Andriy Stasyuk and Adam Roberts and Ian Simon and Cheng-Zhi Anna Huang and Sander Dieleman and Erich Elsen and Jesse Engel and Douglas Eck},
+  booktitle={International Conference on Learning Representations},
+  year={2019},
+  url={https://openreview.net/forum?id=r1lYRjC9F7},
+}
+
+@article{euler-maruyama,
+  title={Inferring parameters of SDEs using a Euler-Maruyama scheme},
+  year={2018},
+  author = {PyMC3},
+  url={https://www.pymc.io/projects/docs/en/v3/pymc-examples/examples/time_series/Euler-Maruyama_and_SDEs.html}
+}
+
+@article{predictor-corrector,
+  title={Predictor-Corrector Methods},
+  year={1998},
+  author = {MIT PC Sampler},
+  url={https://web.mit.edu/10.001/Web/Course_Notes/Differential_Equations_Notes/node7.html}
+}
+
+@article{ode-scipy,
+  title={Scipy Module integrate.ode Documentation},
+  year={2023},
+  author = {Scipy Intergrate ODE},
+  url={https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.ode.html}
+}
+
