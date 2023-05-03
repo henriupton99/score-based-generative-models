@@ -127,7 +127,7 @@ You can find below Soundcloud links (.mp3) for generated samples from the three 
 
 [GitHub from Yang Song about SBGM (Pytorch Version)](https://github.com/yang-song/score_sde_pytorch) 
 
-[Blog post about the Score Based Generative Model](https://yang-song.github.io/blog/2021/score/)
+[Blog post about Score Based Generative Model](https://yang-song.github.io/blog/2021/score/)
 
 ## 6.2. Research Papers
 
