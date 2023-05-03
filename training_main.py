@@ -64,7 +64,7 @@ for epoch in range(config.n_epochs):
   
   
   # Update the checkpoint after each epoch of training.
-  torch.save(score_model.state_dict(), './data/ckpt.pth')
+  torch.save(score_model.state_dict(), './data/model.pth')
 
 plt.figure(figsize=(10, 4))
 x_axis = [k for k in range(1,config.n_epochs+1)]

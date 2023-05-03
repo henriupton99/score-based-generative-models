@@ -70,8 +70,8 @@ class process_maestro_data:
         
 class process_generated_samples:
     
-    def __init__(self, data_file, start_pitch, fs):
-        
+    def __init__(self, data_file, sampler_name, start_pitch, fs):
+        self.sampler_name = sampler_name
         self.data_file = data_file
         self.start_pitch = start_pitch
         self.fs = fs
@@ -102,7 +102,7 @@ class process_generated_samples:
         midi_data.instruments.append(instrument)
 
         # Save the MIDI data to a file
-        midi_data.write('./data/samples_midi/midi_data_sample_'+str(index) +'.mid')
+        midi_data.write('./data/samples_midi/'+self.sampler_name + '/midi_data_sample_'+str(index) +'.mid')
         
         return midi_data
     
@@ -111,6 +111,7 @@ class process_generated_samples:
         savefig=False
     ):
         random_index = np.random.choice([k for k in range(len(self.samples_data))], size = 1)[0]
+        self.piano_roll_to_midi(random_index)
         pm = self.samples_data.iloc[random_index].piano_roll
         pm = np.array(pm)
         plt.figure(figsize=(8, 4))
@@ -118,5 +119,5 @@ class process_generated_samples:
                                 hop_length=1, sr=self.fs, x_axis='time', y_axis='cqt_note',
                                 fmin=pretty_midi.note_number_to_hz(self.start_pitch))
         if savefig is not False:
-            plt.savefig("./figures/piano_roll_generated/piano_roll_" + str(random_index) + ".png",
+            plt.savefig("./figures/piano_roll_generated/"+ self.sampler_name + "/piano_roll_" + str(random_index) + ".png",
                         bbox_inches = "tight")
