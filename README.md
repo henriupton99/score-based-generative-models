@@ -26,12 +26,12 @@ Henri UPTON
 
 ## 1.1. Installation
 
-Frist, clone the repository :
+First, clone the repository :
 ```python
 git clone https://github.com/henriupton99/score-based-generative-models.git
 ```
 
-Then, create a virtual enviroment dedicated to this repository :
+Then, create a virtual environment dedicated to this repository :
 ```python
 conda create -n score-based-generative-models
 conda activate score-based-generative-models
