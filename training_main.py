@@ -3,6 +3,7 @@
 import sys
 sys.path.append("./code")
 
+from config import config
 from data_builder import MaestroDataset
 
 import torch
@@ -10,35 +11,37 @@ from functools import partial
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
-from torchvision.datasets import MNIST
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 from model import ScoreNet, loss_fn
 from sde import marginal_prob_std, diffusion_coeff
 import functools
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-sigma =  25.0#@param {'type':'number'}
-marginal_prob_std_fn = partial(marginal_prob_std, sigma=sigma)
-diffusion_coeff_fn = partial(diffusion_coeff, sigma=sigma)
+marginal_prob_std_fn = partial(marginal_prob_std, sigma=config.sigma)
+diffusion_coeff_fn = partial(diffusion_coeff, sigma=config.sigma)
 
 score_model = torch.nn.DataParallel(ScoreNet(marginal_prob_std=marginal_prob_std_fn))
 score_model = score_model.to(device)
 
-n_epochs =   1#@param {'type':'integer'}
-## size of a mini-batch
-batch_size =  32 #@param {'type':'integer'}
-## learning rate
-lr=1e-4 #@param {'type':'number'}
+print("LOADING TRAIN DATASET ...")
+dataset_train = MaestroDataset(datatype = "train", start_pitch=config.start_pitch, fs=config.fs)
+dataloader_train = DataLoader(dataset_train, batch_size=config.batch_size, shuffle=True)
 
-dataset = MaestroDataset(datatype = "train")
-data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+print("LOADING VALIDATION DATASET ...")
+dataset_val = MaestroDataset(datatype = "validation", start_pitch=config.start_pitch, fs=config.fs)
+dataloader_val = DataLoader(dataset_val, batch_size=config.batch_size, shuffle=True)
 
-optimizer = Adam(score_model.parameters(), lr=lr)
-for epoch in range(n_epochs):
+optimizer = Adam(score_model.parameters(), lr=config.lr)
+train_losses = []
+val_losses = []
+
+for epoch in range(config.n_epochs):
+  print("EPOCH : " + str(epoch+1))
   avg_loss = 0.
   num_items = 0
-  for x in data_loader: 
+  for x in tqdm(dataloader_train): 
     x = x.to(device)
     loss = loss_fn(score_model, x, marginal_prob_std_fn)
     optimizer.zero_grad()
@@ -46,7 +49,29 @@ for epoch in range(n_epochs):
     optimizer.step()
     avg_loss += loss.item() * x.shape[0]
     num_items += x.shape[0]
-  # Print the averaged training loss so far.
-  tqdm_epoch.set_description('Average Loss: {:5f}'.format(avg_loss / num_items))
+  print('Average Loss Train: {:5f}'.format(avg_loss / num_items))
+  train_losses.append(avg_loss / num_items)
+  
+  avg_loss = 0.
+  num_items = 0
+  for x in dataloader_val: 
+    x = x.to(device)
+    loss = loss_fn(score_model, x, marginal_prob_std_fn)
+    avg_loss += loss.item() * x.shape[0]
+    num_items += x.shape[0]
+  print('Average Loss Val: {:5f}'.format(avg_loss / num_items))
+  val_losses.append(avg_loss / num_items)
+  
+  
   # Update the checkpoint after each epoch of training.
-  torch.save(score_model.state_dict(), './data/ckpt.pth')
+  torch.save(score_model.state_dict(), './data/model.pth')
+
+plt.figure(figsize=(10, 4))
+x_axis = [k for k in range(1,config.n_epochs+1)]
+plt.plot(x_axis, train_losses, color = "blue", label = "Train")
+plt.plot(x_axis, val_losses, color = "orange", label = "Validation")
+plt.xlabel("Epochs", size = 12)
+plt.ylabel("Average Loss", size = 12)
+plt.legend()
+plt.savefig("./figures/training_history/train_val_losses.png", bbox_inches = "tight")
+plt.show()
